@@ -1,0 +1,46 @@
+<main class="page-shell packages-page">
+<header class="page-heading">
+    <span class="eyebrow">Simple plans. Instant access.</span>
+    <h1>Choose Your Internet Package</h1>
+    <p>Select a package and enjoy fast, reliable internet.</p>
+</header>
+
+@if (packageService.usingMockData()) {
+    <div class="demo-note" role="note">
+    Backend is coming soon, We're setting things well. Thank you
+    </div>
+}
+
+@if (loading()) {
+    <app-loading-spinner message="Loading available packages..." />
+} @else if (errorMessage()) {
+    <section class="state-panel state-panel--error" role="alert">
+    <span class="state-panel__icon" aria-hidden="true">!</span>
+    <h2>Unable to load packages</h2>
+    <p>{{ errorMessage() }}</p>
+    <button type="button" class="button button--primary" (click)="loadPackages()">Try Again</button>
+    </section>
+} @else if (packages().length === 0) {
+    <section class="state-panel">
+    <span class="state-panel__icon" aria-hidden="true">⌁</span>
+    <h2>No packages available</h2>
+    <p>Please check again soon or contact support for assistance.</p>
+    </section>
+} @else {
+    <section class="package-grid" aria-label="Available internet packages">
+    @for (packageItem of packages(); track packageItem.id) {
+        <app-package-card
+        [packageItem]="packageItem"
+        (selected)="choosePackage($event)"
+        />
+    }
+    </section>
+}
+
+<section class="trust-row" aria-label="Service benefits">
+    <div><span aria-hidden="true">⚡</span><strong>Instant activation</strong></div>
+    <div><span aria-hidden="true">⌁</span><strong>Reliable connection</strong></div>
+    <div><span aria-hidden="true">✓</span><strong>Secure mobile payment</strong></div>
+</section>
+</main>
+

@@ -1,0 +1,15 @@
+<button
+  type="button"
+  class="method-card"
+  [class.method-card--selected]="selected()"
+  [disabled]="disabled()"
+  [attr.aria-pressed]="selected()"
+  (click)="methodSelected.emit(method())"
+>
+  <span class="method-card__logo" [style.--method-color]="method().color">
+    {{ method().initials }}
+  </span>
+  <span class="method-card__name">{{ method().name }}</span>
+  <span class="method-card__check" aria-hidden="true">✓</span>
+</button>
+
