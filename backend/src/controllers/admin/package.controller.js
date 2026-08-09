@@ -5,10 +5,10 @@ import { pool } from "../../database/database.js";
 const createPackage = async (req, res) => {
     try {
         // Get package information from admin app
-        const { name, price, duration_minutes } = req.body;
+        const { name, price, duration_minutes, speed } = req.body;
 
         // Validate required fields
-        if (!name || !price || !duration_minutes) {
+        if (!name || !price || !duration_minutes || !speed) {
             return res.status(400).json({
                 success: false,
                 message: "Name, price and duration are required"
@@ -18,11 +18,11 @@ const createPackage = async (req, res) => {
         // Insert package into PostgreSQL
         const result = await pool.query(
             `
-            INSERT INTO packages (name, price, duration_minutes)
-            VALUES ($1, $2, $3)
+            INSERT INTO packages (name, price, duration_minutes, speed)
+            VALUES ($1, $2, $3, $4)
             RETURNING *
             `,
-            [name, price, duration_minutes]
+            [name, price, duration_minutes, speed]
         );
 
         // Return created package
@@ -50,10 +50,10 @@ const updatePackage = async (req, res) => {
         const { id } = req.params;
 
         // Get updated package information from the admin app
-        const { name, price, duration_minutes } = req.body;
+        const { name, price, duration_minutes, speed } = req.body;
 
         // Validate required fields
-        if (!name || !price || !duration_minutes) {
+        if (!name || !price || !duration_minutes || !speed) {
             return res.status(400).json({
                 success: false,
                 message: "Name, price and duration are required"
@@ -66,11 +66,12 @@ const updatePackage = async (req, res) => {
             UPDATE packages
             SET name = $1,
                 price = $2,
-                duration_minutes = $3
-            WHERE id = $4
+                duration_minutes = $3,
+                speed = $4
+            WHERE id = $5
             RETURNING *
             `,
-            [name, price, duration_minutes, id]
+            [name, price, duration_minutes, speed, id]
         );
 
         // Check whether the requested package actually existed

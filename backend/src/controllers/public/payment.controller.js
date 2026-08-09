@@ -105,17 +105,18 @@ const initiatePayment = async (req, res) => {
     }
 };
 
-// Get the current status of a payment
+// Get the current payment status and related internet session
 const getPaymentStatus = async (req, res) => {
     try {
         // Get transaction reference from the URL
         const { reference } = req.params;
 
-        // Find the payment using our unique transaction reference
-        const result = await pool.query(
+        // Fetch payment details
+        const paymentResult = await pool.query(
             `
             SELECT
                 id,
+                package_id,
                 transaction_reference,
                 status,
                 amount,
@@ -128,23 +129,74 @@ const getPaymentStatus = async (req, res) => {
             [reference]
         );
 
-        // Stop if no matching payment exists
-        if (result.rows.length === 0) {
+        // Stop if payment does not exist
+        if (paymentResult.rows.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: "Payment not found"
             });
         }
 
-        // Return the current payment status
+        // Get the payment record
+        const payment = paymentResult.rows[0];
+
+        // Prepare session value.
+        // It stays null while payment is still pending.
+        let session = null;
+
+        // Only look for a session after successful payment
+        if (payment.status === "successful") {
+            const sessionResult = await pool.query(
+                `
+                SELECT
+                    internet_sessions.id,
+                    internet_sessions.started_at,
+                    internet_sessions.expires_at,
+                    internet_sessions.status,
+
+                    packages.name AS package_name,
+                    packages.duration_minutes,
+                    packages.speed,
+
+                    payments.amount AS amount_paid,
+                    payments.payment_method,
+                    payments.phone_number
+
+                FROM internet_sessions
+
+                JOIN packages
+                    ON internet_sessions.package_id = packages.id
+
+                JOIN payments
+                    ON internet_sessions.payment_id = payments.id
+
+                WHERE internet_sessions.payment_id = $1
+
+                ORDER BY internet_sessions.id DESC
+                LIMIT 1
+                `,
+                [payment.id]
+            );
+
+            // If a session exists, return it
+            if (sessionResult.rows.length > 0) {
+                session = sessionResult.rows[0];
+            }
+        }
+
+        // Send both payment and session information
         res.status(200).json({
             success: true,
-            payment: result.rows[0]
+            payment,
+            session
         });
 
     } catch (error) {
-        // Log the real backend error
-        console.error("Error checking payment status:", error.message);
+        // Log the actual backend error for debugging
+        console.error(
+            "Error checking payment status:",
+            error.message
+        );
 
         res.status(500).json({
             success: false,
@@ -152,6 +204,4 @@ const getPaymentStatus = async (req, res) => {
         });
     }
 };
-
-
 export { initiatePayment, getPaymentStatus };
