@@ -118,4 +118,122 @@ const markPaymentSuccessful = async (req, res) => {
     }
 };
 
-export { markPaymentSuccessful };
+// Get all payment records for the admin dashboard
+const getAllPayments = async (req, res) => {
+    try {
+        // Fetch payments together with their related package information
+        const result = await pool.query(
+            `
+            SELECT
+                payments.id,
+                payments.transaction_reference,
+                payments.phone_number,
+                payments.payment_method,
+                payments.amount,
+                payments.status,
+                payments.created_at,
+                payments.paid_at,
+
+                packages.id AS package_id,
+                packages.name AS package_name,
+                packages.duration_minutes,
+                packages.speed
+
+            FROM payments
+
+            JOIN packages
+                ON payments.package_id = packages.id
+
+            ORDER BY payments.id DESC
+            `
+        );
+
+        // Return all payment records
+        res.status(200).json({
+            success: true,
+            payments: result.rows
+        });
+
+    } catch (error) {
+        // Log the real backend error
+        console.error("Error fetching admin payments:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch payments"
+        });
+    }
+};
+
+// Get one payment by its ID
+const getPaymentById = async (req, res) => {
+    try {
+        // Read payment ID from the URL
+        const { id } = req.params;
+
+        // Fetch payment together with package and session information
+        const result = await pool.query(
+            `
+            SELECT
+                payments.id,
+                payments.transaction_reference,
+                payments.phone_number,
+                payments.payment_method,
+                payments.amount,
+                payments.status,
+                payments.created_at,
+                payments.paid_at,
+
+                packages.id AS package_id,
+                packages.name AS package_name,
+                packages.duration_minutes,
+                packages.speed,
+
+                internet_sessions.id AS session_id,
+                internet_sessions.started_at,
+                internet_sessions.expires_at,
+                internet_sessions.status AS session_status
+
+            FROM payments
+
+            JOIN packages
+                ON payments.package_id = packages.id
+
+            LEFT JOIN internet_sessions
+                ON internet_sessions.payment_id = payments.id
+
+            WHERE payments.id = $1
+            LIMIT 1
+            `,
+            [id]
+        );
+
+        // Stop if payment does not exist
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Payment not found"
+            });
+        }
+
+        // Return full payment details
+        res.status(200).json({
+            success: true,
+            payment: result.rows[0]
+        });
+
+    } catch (error) {
+        // Log actual backend error
+        console.error("Error fetching payment:", error.message);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch payment"
+        });
+    }
+};
+
+
+// Keep your existing temporary success function too
+
+export { markPaymentSuccessful, getAllPayments, getPaymentById };

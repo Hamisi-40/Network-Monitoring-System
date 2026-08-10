@@ -23,6 +23,18 @@ import adminPaymentRoutes from "./src/routes/admin/payment.route.js";
 // Import public session routes
 import publicSessionRoutes from "./src/routes/public/session.route.js";
 
+// Import admin authentication routes
+import adminAuthRoutes from "./src/routes/admin/auth.routes.js";
+
+// Import admin session routes
+import adminSessionRoutes from "./src/routes/admin/session.route.js";
+
+// Import admin dashboard routes
+import adminDashboardRoutes from "./src/routes/admin/dashboard.route.js";
+
+// Import administrator reports routes
+import adminReportRoutes from "./src/routes/admin/report.route.js";
+
 const app = express();
 
 //middlewares
@@ -43,6 +55,18 @@ app.use("/api/admin/payments", adminPaymentRoutes);
 
 // Public session API
 app.use("/api/public/sessions", publicSessionRoutes);
+
+// Admin authentication API
+app.use("/api/admin/auth", adminAuthRoutes);
+
+// Admin session management API
+app.use("/api/admin/sessions", adminSessionRoutes);
+
+// Admin dashboard API
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+
+// Register administrator reports API
+app.use("/api/admin/reports", adminReportRoutes);
 
 // Routes
 app.get('/', (req, res) => {
