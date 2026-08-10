@@ -194,8 +194,13 @@ export class PaymentPageComponent implements OnInit, OnDestroy {
     )
       .subscribe({
 
-        next: (response) => {
+        next: (response) => { 
+          
+ // TEMPORARY DEBUG
+  console.log('PAYMENT STATUS RESPONSE:', response);
+  console.log('STATUS:', response.payment?.status);
 
+  
           //Counts how many checks have been made
           this.pollCount.update((count) => count + 1);
 
