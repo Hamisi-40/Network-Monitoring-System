@@ -141,6 +141,34 @@
               }
             </button>
             <p class="secure-note"><span aria-hidden="true">▣</span> Secure payment. Your details are protected.</p>
+                            <!-- Alternative payment option: cash -->
+                <div class="cash-option">
+
+                  <!-- Visual divider separating mobile money from cash -->
+                  <div class="cash-option__divider">
+                    <span>OR</span>
+                  </div>
+
+                  <div class="cash-option__content">
+                    <div>
+                      <h3>Prefer to pay with cash?</h3>
+                      <p>
+                        Submit a cash payment request and pay the administrator directly.
+                        Your package will be activated after the payment is confirmed.
+                      </p>
+                    </div>
+
+                    <!-- This button does not submit the mobile-money form -->
+                    <button
+                      type="button"
+                      class="button button--cash button--full"
+                      (click)="goToCashPayment()"
+                    >
+                      Pay Using Cash
+                    </button>
+                  </div>
+
+                </div>
           </form>
         }
       </section>

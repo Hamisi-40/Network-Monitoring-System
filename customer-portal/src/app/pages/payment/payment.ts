@@ -42,10 +42,10 @@ export class PaymentPageComponent implements OnInit, OnDestroy {
   readonly pollCount = signal(0);
 
   readonly paymentMethods: PaymentMethodOption[] = [
-    { id: 'mpesa', name: 'M-Pesa', initials: 'MP', color: '#1f8f3a' },
-    { id: 'airtel_money', name: 'Airtel Money', initials: 'AM', color: '#db1f2a' },
-    { id: 'mixx_by_yas', name: 'Mixx by Yas', initials: 'MY', color: '#7540a6' },
-    { id: 'halopesa', name: 'HaloPesa', initials: 'HP', color: '#ef7d16' },
+    { id: 'mpesa', name: 'M-Pesa', initials: 'MP', color: '#1f8f3a', image:'assets/images/payments/m-pesa.png' },
+    { id: 'airtel_money', name: 'Airtel Money', initials: 'AM', color: '#db1f2a', image:'assets/images/payments/airtel-money.jpg'},
+    { id: 'mixx_by_yas', name: 'Mixx by Yas', initials: 'MY', color: '#7540a6', image:'assets/images/payments/mix by yas.jpg' },
+    { id: 'halopesa', name: 'HaloPesa', initials: 'HP', color: '#ef7d16', image:'assets/images/payments/halopesa.jpg' },
   ];
 
   readonly paymentForm = new FormGroup({
@@ -170,6 +170,33 @@ export class PaymentPageComponent implements OnInit, OnDestroy {
   cancelPayment(): void {
     this.retryPayment();
   }
+
+      /**
+     * Opens the separate cash-payment flow
+     * using the package currently selected by the customer.
+     */
+    goToCashPayment(): void {
+
+      // Get the currently selected package
+      const packageItem = this.packageItem();
+
+      // Prevent navigation if the package is unavailable
+      if (!packageItem) {
+        this.errorMessage.set(
+          'The selected package is unavailable. Please choose a package again.'
+        );
+        return;
+      }
+
+      // Stop any mobile-money polling before leaving this page
+      this.stopPolling();
+
+      // Navigate to the dedicated cash-payment page
+      void this.router.navigate([
+        '/cash-payment',
+        packageItem.id
+      ]);
+    }
 
   selectedMethodName(): string {
     const selectedId = this.paymentForm.controls.paymentMethod.value;

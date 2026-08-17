@@ -45,5 +45,22 @@ export class PaymentService {
       return null;
     }
   }
+  /**
+ * Create a cash-payment request.
+ *
+ * Price is deliberately not sent.
+ * The backend reads the trusted price from PostgreSQL.
+ */
+initiateCashPayment(payload: {
+  package_id: number;
+  phone_number: string;
+}): Observable<any> {
+
+  return this.http.post<any>(
+    `${API_BASE_URL}/api/public/payments/cash-request`,
+    payload
+  );
+}
+
 }
 

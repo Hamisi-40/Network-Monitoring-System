@@ -9,6 +9,9 @@ export interface PaymentMethodOption {
   name: string;
   initials: string;
   color: string;
+
+  // Logo image used by the payment method card
+  image: string;
 }
 
 export interface PaymentInitiationRequest {

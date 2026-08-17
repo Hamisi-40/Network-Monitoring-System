@@ -56,3 +56,11 @@
   background: var(--primary);
   color: #fff;
 }
+
+/* Keep each provider logo clean and proportional */
+.method-card__logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

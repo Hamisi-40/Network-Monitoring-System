@@ -64,6 +64,84 @@ legend { padding: 0; color: var(--navy); font-size: 1.1rem; font-weight: 850; }
 .feedback-icon--error { background: var(--danger-soft); color: var(--danger); }
 .feedback-icon--warning { background: var(--warning-soft); color: #a75a00; font-size: 1.4rem; }
 
+/* =========================================================
+  CASH PAYMENT OPTION
+  Separate from the mobile-money checkout flow.
+========================================================= */
+
+.cash-option {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+
+/* Divider with OR in the middle */
+.cash-option__divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.cash-option__divider::before,
+.cash-option__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.cash-option__divider span {
+  white-space: nowrap;
+}
+
+/* Main cash-payment information block */
+.cash-option__content {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.cash-option__content h3 {
+  margin: 0 0 6px;
+  color: var(--navy);
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.cash-option__content p {
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Cash action button */
+.button--cash {
+  border: 1.5px solid var(--primary);
+  background: #ffffff;
+  color: var(--primary);
+  font-weight: 800;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.button--cash:hover {
+  background: var(--primary-soft);
+}
+
+.button--cash:focus-visible {
+  outline: 3px solid rgba(20, 115, 230, 0.18);
+  outline-offset: 2px;
+}
+
 @media (min-width: 600px) {
   .method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

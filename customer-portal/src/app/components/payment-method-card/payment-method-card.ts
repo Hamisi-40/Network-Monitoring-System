@@ -14,4 +14,3 @@ export class PaymentMethodCardComponent {
   readonly disabled = input(false);
   readonly methodSelected = output<PaymentMethodOption>();
 }
-

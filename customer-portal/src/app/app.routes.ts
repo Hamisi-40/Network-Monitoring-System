@@ -37,5 +37,22 @@ export const routes: Routes = [
       import('./pages/expired/expired').then((component) => component.ExpiredPageComponent),
     title: 'Package Expired | Y4C WiFi',
   },
+
+  {
+  path: 'cash-payment/:packageId',
+  loadComponent: () =>
+    import('./pages/cash-payment/cash-payment')
+      .then((m) => m.CashPaymentPageComponent)
+},
+  
+
+{
+  path: 'cash-payment-status/:reference',
+  loadComponent: () =>
+    import('./pages/cash-payment-status/cash-payment-status')
+      .then((m) => m.CashPaymentStatusPageComponent)
+},
+
   { path: '**', redirectTo: 'packages' },
+
 ];
