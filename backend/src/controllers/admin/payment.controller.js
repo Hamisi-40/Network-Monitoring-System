@@ -233,7 +233,176 @@ const getPaymentById = async (req, res) => {
     }
 };
 
+// Get cash-payment requests waiting for administrator confirmation
+const getCashRequests = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `
+            SELECT
+                payments.id,
+                payments.transaction_reference,
+                payments.phone_number,
+                payments.amount,
+                payments.status,
+                payments.created_at,
+
+                packages.id AS package_id,
+                packages.name AS package_name,
+                packages.duration_minutes,
+                packages.speed
+
+            FROM payments
+
+            JOIN packages
+                ON payments.package_id = packages.id
+
+            WHERE payments.payment_method = 'cash'
+
+            ORDER BY payments.id DESC
+            `
+        );
+
+        res.status(200).json({
+            success: true,
+            cash_requests: result.rows
+        });
+
+    } catch (error) {
+        console.error(
+            "Error fetching cash requests:",
+            error.message
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch cash payment requests"
+        });
+    }
+};
+
+// Confirm that the administrator physically received the cash payment
+const confirmCashPayment = async (req, res) => {
+
+    // Use one PostgreSQL client so payment + session creation
+    // happen inside the same database transaction.
+    const client = await pool.connect();
+
+    try {
+        const { reference } = req.params;
+
+        await client.query("BEGIN");
+
+        // Find the cash request and package duration
+        const paymentResult = await client.query(
+            `
+            SELECT
+                payments.*,
+                packages.duration_minutes
+
+            FROM payments
+
+            JOIN packages
+                ON payments.package_id = packages.id
+
+            WHERE payments.transaction_reference = $1
+            AND payments.payment_method = 'cash'
+            `,
+            [reference]
+        );
+
+        if (paymentResult.rows.length === 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(404).json({
+                success: false,
+                message: "Cash payment request not found"
+            });
+        }
+
+        const payment = paymentResult.rows[0];
+
+        // Only waiting cash requests can be confirmed
+        if (
+            payment.status !==
+            "awaiting_cash_confirmation"
+        ) {
+            await client.query("ROLLBACK");
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Cash payment has already been processed"
+            });
+        }
+
+        // Mark payment successful
+        await client.query(
+            `
+            UPDATE payments
+            SET
+                status = 'successful',
+                paid_at = CURRENT_TIMESTAMP
+            WHERE id = $1
+            `,
+            [payment.id]
+        );
+
+        // Create the customer's internet session
+        const sessionResult = await client.query(
+            `
+            INSERT INTO internet_sessions (
+                payment_id,
+                package_id,
+                started_at,
+                expires_at,
+                status
+            )
+            VALUES (
+                $1,
+                $2,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP
+                    + ($3 * INTERVAL '1 minute'),
+                'active'
+            )
+            RETURNING *
+            `,
+            [
+                payment.id,
+                payment.package_id,
+                payment.duration_minutes
+            ]
+        );
+
+        await client.query("COMMIT");
+
+        res.status(200).json({
+            success: true,
+            message:
+                "Cash payment confirmed and internet session created",
+            payment_reference:
+                payment.transaction_reference,
+            session: sessionResult.rows[0]
+        });
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+
+        console.error(
+            "Error confirming cash payment:",
+            error.message
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to confirm cash payment"
+        });
+
+    } finally {
+        client.release();
+    }
+};
 
 // Keep your existing temporary success function too
 
-export { markPaymentSuccessful, getAllPayments, getPaymentById };
+export { markPaymentSuccessful, getAllPayments, getPaymentById, getCashRequests, confirmCashPayment };

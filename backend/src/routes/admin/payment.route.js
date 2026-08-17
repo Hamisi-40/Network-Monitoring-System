@@ -2,7 +2,7 @@
 import { Router } from "express";
 
 // Import admin payment controller
-import { markPaymentSuccessful, getAllPayments, getPaymentById } from "../../controllers/admin/payment.controller.js";
+import { markPaymentSuccessful, getAllPayments, getPaymentById, getCashRequests, confirmCashPayment } from "../../controllers/admin/payment.controller.js";
 
 // Import admin authentication middleware
 import { adminAuth } from "../../middlewares/adminAuth.middleware.js";
@@ -19,6 +19,12 @@ router.get("/", getAllPayments);
 // TEMPORARY test route:
 // Mark a payment as successful using its transaction reference
 router.patch("/:reference/success", markPaymentSuccessful);
+
+//Admin views cash payment requests
+router.get("/cash-requests", getCashRequests);
+
+//Administrator confirms that cash was physically received
+router.patch("/cash-requests/:reference/confirm", confirmCashPayment)
 
 // Get one payment by ID
 router.get("/:id", getPaymentById);

@@ -46,7 +46,7 @@ const initiatePayment = async (req, res) => {
 
         // Generate our own unique transaction reference
         const transactionReference =
-            "PAY-" + crypto.randomUUID();
+            "MOBILEPAYMENT-" + crypto.randomUUID();
 
         // Create a pending payment record
         const paymentResult = await pool.query(
@@ -204,4 +204,116 @@ const getPaymentStatus = async (req, res) => {
         });
     }
 };
-export { initiatePayment, getPaymentStatus };
+
+// Create a new cash payment request
+const initiateCashPayment = async (req, res) => {
+    try {
+        // Customer only sends package ID and phone number.
+        // The package price is always determined by the backend.
+        const {
+            package_id,
+            phone_number
+        } = req.body;
+
+        // Validate required fields
+        if (!package_id || !phone_number) {
+            return res.status(400).json({
+                success: false,
+                message: "Package and phone number are required"
+            });
+        }
+
+        // Find the selected active package
+        const packageResult = await pool.query(
+            `
+            SELECT *
+            FROM packages
+            WHERE id = $1
+            AND is_active = TRUE
+            `,
+            [package_id]
+        );
+
+        // Stop if package is unavailable
+        if (packageResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Selected package is not available"
+            });
+        }
+
+        const selectedPackage = packageResult.rows[0];
+
+        // Generate a recognizable cash-payment reference
+        const transactionReference =
+            "CASHPAYMENT-" + crypto.randomUUID();
+
+        // Store the request in the same payments table
+        const paymentResult = await pool.query(
+            `
+            INSERT INTO payments (
+                package_id,
+                phone_number,
+                payment_method,
+                amount,
+                transaction_reference,
+                status
+            )
+            VALUES (
+                $1,
+                $2,
+                'cash',
+                $3,
+                $4,
+                'awaiting_cash_confirmation'
+            )
+            RETURNING *
+            `,
+            [
+                package_id,
+                phone_number,
+                selectedPackage.price,
+                transactionReference
+            ]
+        );
+
+        const payment = paymentResult.rows[0];
+
+        // Return information needed by the cash-instructions page
+        res.status(201).json({
+            success: true,
+            message: "Cash payment request submitted",
+            payment: {
+                id: payment.id,
+                transaction_reference:
+                    payment.transaction_reference,
+                status: payment.status,
+                amount: payment.amount,
+                phone_number: payment.phone_number,
+                payment_method: payment.payment_method,
+
+                package: {
+                    id: selectedPackage.id,
+                    name: selectedPackage.name,
+                    duration_minutes:
+                        selectedPackage.duration_minutes,
+                    speed: selectedPackage.speed
+                }
+            }
+        });
+
+    } catch (error) {
+        // Log the real backend error
+        console.error(
+            "Error creating cash payment request:",
+            error.message
+        );
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to create cash payment request"
+        });
+    }
+};
+
+export { initiatePayment, getPaymentStatus, initiateCashPayment };
