@@ -12,6 +12,27 @@ export class PaymentService {
   getPayments(): Observable<PaymentListResponse> { return this.http.get<PaymentListResponse>(this.url); }
   getPayment(id: number): Observable<PaymentResponse> { return this.http.get<PaymentResponse>(`${this.url}/${id}`); }
 
+  /**
+   * Load cash-payment requests for the administrator.
+   */
+  getCashRequests(): Observable<any> {
+    return this.http.get<any>(
+      `${this.url}/cash-requests`
+    );
+  }
+
+  /**
+   * Confirm that cash was physically received.
+   * The backend will then mark the payment successful
+   * and create the customer's internet session.
+   */
+  confirmCashPayment(reference: string): Observable<any> {
+    return this.http.patch<any>(
+      `${this.url}/cash-requests/${encodeURIComponent(reference)}/confirm`,
+      {}
+    );
+  }
+
   /** Temporary backend helper. Keep this method out of normal production controls. */
   markSuccessfulForDevelopment(reference: string): Observable<PaymentResponse> {
     return this.http.patch<PaymentResponse>(`${this.url}/${encodeURIComponent(reference)}/success`, {});
