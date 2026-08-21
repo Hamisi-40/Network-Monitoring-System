@@ -1,8 +1,5 @@
 import { Routes } from '@angular/router';
 
-<<<<<<< HEAD
-export const routes: Routes = [];
-=======
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'packages' },
@@ -59,4 +56,3 @@ export const routes: Routes = [
   { path: '**', redirectTo: 'packages' },
 
 ];
->>>>>>> omary
