@@ -1,7 +1,0 @@
-{
-  "name": "admin-page",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
