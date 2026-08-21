@@ -1,0 +1,12 @@
+<div class="page-container">
+  <header class="page-heading"><div><p>ACCOUNT</p><h1>Administrator profile</h1><span>View the account currently authorized to manage this network.</span></div></header>
+  @if(loading()){<div class="state-card"><ion-spinner name="crescent"></ion-spinner><p>Loading profile…</p></div>}
+  @else if(error()){<div class="state-card error-state"><h2>Profile unavailable</h2><p>We could not refresh your administrator account.</p><ion-button (click)="refresh()">Try again</ion-button></div>}
+  @else if(auth.admin();as admin){
+    <section class="profile-card">
+      <div class="profile-hero"><span>{{initials()}}</span><div><p>AUTHORIZED ADMINISTRATOR</p><h2>{{admin.name}}</h2><small>{{admin.email}}</small></div><b><i></i>Account active</b></div>
+      <div class="profile-details"><article><span><ion-icon name="person-outline"></ion-icon></span><div><small>FULL NAME</small><strong>{{admin.name}}</strong></div></article><article><span><ion-icon name="mail-outline"></ion-icon></span><div><small>EMAIL ADDRESS</small><strong>{{admin.email}}</strong></div></article><article><span><ion-icon name="shield-checkmark-outline"></ion-icon></span><div><small>ACCESS LEVEL</small><strong>System administrator</strong></div></article><article><span><ion-icon name="checkmark-circle-outline"></ion-icon></span><div><small>ACCOUNT STATUS</small><strong>{{admin.status||((admin.is_active??true)?'Active':'Inactive')}}</strong></div></article></div>
+      <footer><div><strong>End administrator session</strong><small>You will be redirected to the secure login screen.</small></div><ion-button color="danger" fill="outline" (click)="logout()"><ion-icon slot="start" name="log-out-outline"></ion-icon>Log out</ion-button></footer>
+    </section>
+  }
+</div>

@@ -1,0 +1,215 @@
+    <main class="page-shell cash-page">
+
+    <!-- Return to the normal payment page -->
+    <a
+        [routerLink]="['/payment', packageItem()?.id]"
+        class="back-link"
+    >
+        ← Back to payment options
+    </a>
+
+
+    @if (loading()) {
+
+        <section class="cash-card">
+        <p>Loading package...</p>
+        </section>
+
+    } @else if (!packageItem()) {
+
+        <section class="cash-card cash-card--error">
+
+        <h1>Package unavailable</h1>
+
+        <p>{{ errorMessage() }}</p>
+
+        <a
+            routerLink="/packages"
+            class="button button--primary"
+        >
+            Choose a Package
+        </a>
+
+        </section>
+
+    } @else {
+
+        <header class="cash-heading">
+
+        <span class="cash-label">
+            Cash Payment
+        </span>
+
+        <h1>Request to Pay Using Cash</h1>
+
+        <p>
+            Submit your request first, then pay the administrator
+            using the reference generated for you.
+        </p>
+
+        </header>
+
+
+        <div class="cash-layout">
+
+        <!-- Selected package -->
+        <aside class="package-summary">
+
+            <span class="package-summary__label">
+            Selected package
+            </span>
+
+            <h2>
+            {{ packageItem()!.name }}
+            </h2>
+
+            <p class="package-summary__price">
+            <span>TZS</span>
+            {{ packageItem()!.price.toLocaleString() }}
+            </p>
+
+            <dl>
+
+            <div>
+                <dt>Duration</dt>
+                <dd>
+                {{
+                    packageService.formatDuration(
+                    packageItem()!.duration_minutes
+                    )
+                }}
+                </dd>
+            </div>
+
+            <div>
+                <dt>Speed</dt>
+                <dd>{{ packageItem()!.speed }}</dd>
+            </div>
+
+            </dl>
+
+        </aside>
+
+
+        <!-- Cash request form -->
+        <section class="cash-card">
+
+            <div class="cash-card__heading">
+
+            <span class="cash-icon">
+                $
+            </span>
+
+            <div>
+                <h2>Cash Payment Request</h2>
+
+                <p>
+                Enter a phone number so the administrator can
+                identify your request.
+                </p>
+            </div>
+
+            </div>
+
+
+            <form novalidate>
+            <div class="phone-field">
+
+                <label for="cashPhone">
+                Phone number
+                </label>
+
+                <div class="phone-input-wrap">
+
+                <span aria-hidden="true">
+                    +255
+                </span>
+
+                <input
+                    id="cashPhone"
+                    type="tel"
+                    inputmode="tel"
+                    autocomplete="tel"
+                    [formControl]="phoneNumber"
+                    placeholder="07XXXXXXXX"
+                    maxlength="13"
+                    (blur)="sanitizePhoneInput()"
+                />
+
+                </div>
+
+                <p class="field-hint">
+                This number helps the administrator identify
+                your cash-payment request.
+                </p>
+
+                @if (
+                phoneNumber.touched &&
+                phoneNumber.invalid
+                ) {
+
+                <p
+                    class="field-error"
+                    role="alert"
+                >
+                    Enter a valid Tanzanian phone number,
+                    for example 0712345678.
+                </p>
+
+                }
+
+            </div>
+
+
+            @if (errorMessage()) {
+
+                <div
+                class="inline-alert"
+                role="alert"
+                >
+                {{ errorMessage() }}
+                </div>
+
+            }
+
+
+            <div class="cash-info">
+
+                <strong>What happens next?</strong>
+
+                <p>
+                After submitting, you will receive a cash-payment
+                reference and instructions for completing the payment.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="button button--primary button--full"
+                [disabled]="phoneNumber.invalid || submitting()"
+                (click)="requestCashPayment()"
+            >
+
+                @if (submitting()) {
+
+                Submitting request...
+
+                } @else {
+
+                Request Cash Payment
+
+                }
+
+            </button>
+
+            </form>
+
+        </section>
+
+        </div>
+
+    }
+
+    </main>

@@ -3,7 +3,10 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+<<<<<<< HEAD
     "strict": true,
+=======
+>>>>>>> omary
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
@@ -18,8 +21,12 @@
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
+<<<<<<< HEAD
     "strictInputAccessModifiers": true,
     "strictTemplates": true
+=======
+    "strictInputAccessModifiers": true
+>>>>>>> omary
   },
   "files": [],
   "references": [

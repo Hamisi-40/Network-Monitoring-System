@@ -3,7 +3,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+<<<<<<< HEAD
     "outDir": "./out-tsc/app",
+=======
+>>>>>>> omary
     "types": []
   },
   "include": [

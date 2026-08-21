@@ -1,0 +1,34 @@
+<article
+  class="package-card"
+  [attr.data-accent]="packageItem().accent || 'blue'"
+  (click)="choosePackage()"
+>
+  <div class="package-card__topline"></div>
+  <div class="package-card__heading">
+    <span class="package-card__signal" aria-hidden="true">⌁</span>
+    <span class="package-card__duration">
+      {{ packageService.formatDuration(packageItem().duration_minutes) }}
+    </span>
+  </div>
+
+  <h2>{{ packageItem().name }}</h2>
+  <p class="package-card__price">
+    <span>TZS</span> {{ packageItem().price.toLocaleString() }}
+  </p>
+
+  <dl>
+    <div>
+      <dt>Duration</dt>
+      <dd>{{ packageService.formatDuration(packageItem().duration_minutes) }}</dd>
+    </div>
+    <div>
+      <dt>Speed</dt>
+      <dd>{{ packageItem().speed || 'Placeholder Mbps' }}</dd>
+    </div>
+  </dl>
+
+  <button type="button" class="package-card__button" (click)="$event.stopPropagation(); choosePackage()">
+    Buy Package <span aria-hidden="true">→</span>
+  </button>
+</article>
+
